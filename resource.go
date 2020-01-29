@@ -1,4 +1,4 @@
-// Copyright 2019, OpenCensus Authors
+// Copyright 2020, OpenCensus Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,12 +27,23 @@ import (
 // for customization.
 const (
 	stackdriverProjectID            = "contrib.opencensus.io/exporter/stackdriver/project_id"
+	stackdriverLocation             = "contrib.opencensus.io/exporter/stackdriver/location"
+	stackdriverClusterName          = "contrib.opencesus.io/exporter/stackdriver/cluster_name"
 	stackdriverGenericTaskNamespace = "contrib.opencensus.io/exporter/stackdriver/generic_task/namespace"
 	stackdriverGenericTaskJob       = "contrib.opencensus.io/exporter/stackdriver/generic_task/job"
 	stackdriverGenericTaskID        = "contrib.opencensus.io/exporter/stackdriver/generic_task/task_id"
+
+	knativeResType           = "knative_revision"
+	knativeServiceName       = "service_name"
+	knativeRevisionName      = "revision_name"
+	knativeLocation          = "location"
+	knativeConfigurationName = "configuration_name"
+	knativeClusterName       = "cluster_name"
+	knativeNamespaceName     = "namespace_name"
 )
 
-// Mappings for the well-known OpenCensus resources to applicable Stackdriver resources.
+// Mappings for the well-known OpenCensus resource label keys
+// to applicable Stackdriver Monitored Resource label keys.
 var k8sContainerMap = map[string]string{
 	"project_id":     stackdriverProjectID,
 	"location":       resourcekeys.CloudKeyZone,
@@ -79,6 +90,16 @@ var genericResourceMap = map[string]string{
 	"task_id":    stackdriverGenericTaskID,
 }
 
+var knativeRevisionResourceMap = map[string]string{
+	"project_id":             stackdriverProjectID,
+	knativeServiceName:       knativeServiceName,
+	knativeRevisionName:      knativeRevisionName,
+	knativeLocation:          knativeLocation,
+	knativeConfigurationName: knativeConfigurationName,
+	knativeClusterName:       knativeClusterName,
+	knativeNamespaceName:     knativeNamespaceName,
+}
+
 // returns transformed label map and true if all labels in match are found
 // in input except optional project_id. It returns false if at least one label
 // other than project_id is missing.
@@ -120,6 +141,9 @@ func defaultMapResource(res *resource.Resource) *monitoredrespb.MonitoredResourc
 	case res.Labels[resourcekeys.CloudKeyProvider] == resourcekeys.CloudProviderAWS:
 		result.Type = "aws_ec2_instance"
 		match = awsResourceMap
+	case res.Type == knativeResType:
+		result.Type = res.Type
+		match = knativeRevisionResourceMap
 	}
 
 	var missing bool

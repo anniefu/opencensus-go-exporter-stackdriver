@@ -1,4 +1,4 @@
-// Copyright 2019, OpenCensus Authors
+// Copyright 2020, OpenCensus Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -198,6 +198,32 @@ func TestDefaultMapResource(t *testing.T) {
 			want: &monitoredrespb.MonitoredResource{
 				Type:   "global",
 				Labels: nil,
+			},
+		},
+		{
+			input: &resource.Resource{
+				Type: "knative_revision",
+				Labels: map[string]string{
+					stackdriverProjectID:     "proj1",
+					knativeServiceName:       "helloworld-go",
+					knativeRevisionName:      "helloworld-go-hfc7j",
+					knativeLocation:          "zone1",
+					knativeConfigurationName: "helloworld-go",
+					knativeClusterName:       "cluster1",
+					knativeNamespaceName:     "namespace1",
+				},
+			},
+			want: &monitoredrespb.MonitoredResource{
+				Type: "knative_revision",
+				Labels: map[string]string{
+					"project_id":         "proj1",
+					"service_name":       "helloworld-go",
+					"revision_name":      "helloworld-go-hfc7j",
+					"location":           "zone1",
+					"configuration_name": "helloworld-go",
+					"cluster_name":       "cluster1",
+					"namespace_name":     "namespace1",
+				},
 			},
 		},
 	}
